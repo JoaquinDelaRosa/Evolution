@@ -1,0 +1,39 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "C:\\Users\\JOAQUIN DELA ROSA\\Desktop\\Personal\\Others\\Evolution Simulation\\include/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "C:\\Program Files\\CodeBlocks\\MinGW\\bin\\gcc.exe",
+            "cStandard": "gnu17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-gcc-x64"
+        },
+        {
+            "name": "SFML C++",
+            "includePath": [
+                "C:\\Users\\JOAQUIN DELA ROSA\\Desktop\\Personal\\Others\\Evolution Simulation\\include/**",
+                "C:\\Program Files\\CodeBlocks\\SFML-2.5.1\\include\\SFML"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "C:\\Program Files\\CodeBlocks\\MinGW\\bin\\gcc.exe",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "windows-gcc-x64",
+            "browse": {
+                "path": []
+            }
+        }
+    ],
+    "version": 4
+}
