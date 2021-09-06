@@ -21,7 +21,7 @@ class NeuralNetwork{
         Entity* entity;
         int inputNeurons;
         int outputNeurons;
-        const static int hiddenNeurons = 10;
+        const static int hiddenNeurons = 20;
 
         std::map<std::string, float> inputs;
         std::vector<float> hidden;
@@ -73,14 +73,28 @@ class NeuralNetwork{
 
         void initializeInputs(){
             this->inputs = *(new std::map<std::string, float>());
+
             this->inputs["AngleOffsetMemory"] = 0;
             this->inputs["TargetDistanceMemory"] = -1;
+            this->inputs["Constant"] = 1;
+
+            inputs["EntityHealth"];
+            inputs["HasFoodDigester"];
+            inputs["HasWasteDigester"];
+            inputs["FoodSignal"];
+            inputs["WasteSignal"];
+            inputs["NearestFood"];
+            inputs["NearestWaste"];
+            inputs["Speed"];
+            inputs["TargetDistanceMemory"];
+            inputs["TargetDistance"];
+            inputs["AngleOffsetMemory"];
+            inputs["AngleOffset"];
+
         }
 
         void initializeOutputs(){
             this->outputs = *(new std::map<std::string, float>());
-            this->outputs["SearchFood"] = 0;
-            this->outputs["SearchWaste"] = 0;
             this->outputs["Wander"] = 0;
             this->outputs["TurnLeft"] = 0;
             this->outputs["TurnRight"] = 0;
@@ -98,7 +112,7 @@ class NeuralNetwork{
             for(int i = 0; i < inputNeurons; i++){
                 std::vector<float> tmp;
                 for(int j = 0; j < hiddenNeurons; j++){
-                    float w = Generator::instance().getRandomNumber(-1.0f, 1.0f);
+                    float w = 0;
                     tmp.push_back(w);
                 }
                 this->hiddenWeights.push_back(tmp);
@@ -109,7 +123,7 @@ class NeuralNetwork{
             for(int i = 0; i < hiddenNeurons; i++){
                 std::vector<float> tmp;
                 for(int j = 0; j < outputNeurons; j++){
-                    float w = Generator::instance().getRandomNumber(-1.0f, 1.0f);
+                    float w = 0;
                     tmp.push_back(w);
                 }
                 this->outputWeights.push_back(tmp);
@@ -124,8 +138,9 @@ class NeuralNetwork{
                     // Mutate at a certain probability
                     if(p >= NEURAL_MUTATION_RATE)
                         continue;
-                    hiddenWeights[i][j] += Generator::instance().getRandomNumber(-0.1f, 0.1f);
-                    clamp<float>(-1.0f, 1.0f, &hiddenWeights[i][j]);
+                    else{
+                        hiddenWeights[i][j] += Generator::instance().getRandomNumber(-0.1f, 0.1f);
+                    }
                 }
             }
 
@@ -136,8 +151,9 @@ class NeuralNetwork{
                     // Mutate at a certain probability
                     if(p >= NEURAL_MUTATION_RATE)
                         continue;
-                    outputWeights[i][j] += Generator::instance().getRandomNumber(-0.1f, 0.1f);
-                    clamp<float>(-1.0f, 1.0f, &outputWeights[i][j]);
+                    else{
+                        outputWeights[i][j] += Generator::instance().getRandomNumber(-0.1f, 0.1f);
+                    }
                 }
             }
         }
@@ -150,12 +166,17 @@ class NeuralNetwork{
         }
 
         void getInputs(){
+            if(entity->getBody() == nullptr)
+                return;
+
             inputs["EntityHealth"] = entity->getHealth();
             inputs["HasFoodDigester"] = entity->getBody()->hasComponent("FoodDigester");
             inputs["HasWasteDigester"] = entity->getBody()->hasComponent("WasteDigester");
-//            inputs["FoodSignal"] = entity->getResourceSensor("Food")->getSignal();
-//            inputs["WasteSignal"] = entity->getResourceSensor("Waste")->getSignal();
-//            inputs["EntitySSignal"] = entity->getEntitySensor()->getSignal();
+            inputs["FoodSignal"] = entity->getResourceSensor("Food")->getSignal();
+            inputs["WasteSignal"] = entity->getResourceSensor("Waste")->getSignal();
+            inputs["NearestFood"] = entity->getResourceSensor("Food")->distance();
+            inputs["NearestWaste"] = entity->getResourceSensor("Waste")->distance();
+            inputs["Speed"] = entity->speed;
 
 
             inputs["TargetDistanceMemory"] = inputs["TargetDistance"];
@@ -197,12 +218,6 @@ class NeuralNetwork{
         }
 
         void act(){
-            if(outputs["SearchFood"] >= 0.5f){
-                entity->search("Food");
-            }
-            if(outputs["SearchWaste"] >= 0.5f){
-                entity->search("Waste");
-            }
             if(outputs["Wander"] >= 0.5f){
                 entity->wander();
             }
@@ -211,9 +226,6 @@ class NeuralNetwork{
             }
             if(outputs["TurnRight"] >= 0.5f){
                 entity->steerRight();
-            }
-            if(outputs["SearchEntity"] >= 0.5f){
-                entity->search("Entity");
             }
         }
 

@@ -7,6 +7,7 @@
 #include "Resources/Waste.h"
 
 class Entity;
+class ResourceSensor;
 
 class FoodDigester : public Component{
     // Abstract class for body components
@@ -33,20 +34,19 @@ class FoodDigester : public Component{
             window.draw(*this->body);
         }
 
-        virtual void action(){
-
-        }
-
-        virtual void action(Resource* resource){
+        void action() override{
+            Resource* resource = entity->getResourceSensor("Food")->getClosest();
+            if(resource == nullptr)
+                return;
             if(resource->isConsumed())
                 return;
             if(resource->getId() == ResourceTypes::FoodType){
-
                 if(getDistance(resource->position, this->position) < 10.0f){
                     resource->consume(this->entity);
-                    this->entity->health += 1.0f;
+                    this->entity->health += resource->getValue();
+                    this->entity->accumulatedHealth += resource->getValue();
                     entity->target = nullptr;
-                    World::instance().managers["Waste"]->addResource();
+                    World::instance().managers["Waste"]->addResource(resource->position);
                 }
             }
         }

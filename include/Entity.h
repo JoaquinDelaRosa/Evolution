@@ -11,7 +11,7 @@ class EntitySensor;
 
 class Resource;
 
-class Sensor;
+class ResourceSensor;
 class Body;
 class Brain;
 
@@ -24,13 +24,13 @@ class Entity
         bool isAlive;
         void initializeSensors();
         void updateDirection();
+
         float lifespan = 0;
         int children = 0;
 
         Body* body;
         Brain* brain;
-        std::map<std::string, Sensor*> sensors;             // resource sensors
-        EntitySensor* entitySensor;
+        std::map<std::string, ResourceSensor*> sensors;             // resource sensors
 
     public:
         Entity(const& Entity) = delete;
@@ -43,6 +43,7 @@ class Entity
 
         float speed;
         float health;
+        float accumulatedHealth = 0;
 
         void draw(sf::RenderWindow& window);                      // Draw entity on screen
         void update(float time);                                  // Update the entity's position;
@@ -58,7 +59,7 @@ class Entity
         void steerRight();                                         // steering behavior
 
 
-        void search(std::string type);                             // Find a resource of type type and set that as a target
+        void searchResource(std::string type);                             // Find a resource of type type and set that as a target
         float distanceToTarget();
         void goToTarget();                                         // Go to the target resource selected, if any
         void goToEntity();                                         // Go to the other entit(ies) found, if any
@@ -72,8 +73,7 @@ class Entity
         Body* getBody() { return body;}
         Brain* getBrain() { return brain;}
 
-        EntitySensor* getEntitySensor() {return this->entitySensor;}
-        Sensor* getResourceSensor(std::string key) { return this->sensors[key];}
+        ResourceSensor* getResourceSensor(std::string key) { return this->sensors[key];}
 
 
         float getFitness();                                   // Calculate the fitness score of the entity.

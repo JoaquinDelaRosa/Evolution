@@ -25,15 +25,14 @@ class Body{
     public:
         Body(Entity* e){
             mainbody = new sf::CircleShape(radius);
+            this->components = *(new std::vector<Component*>());
             owner = e;
         }
 
-        void act(Resource* resource){
-            if(resource == nullptr)
-                return;
+        void act(){
 
             for(int i = 0; i < (int) components.size(); i++){
-                components[i]->action(resource);
+                components[i]->action();
             }
         }
 

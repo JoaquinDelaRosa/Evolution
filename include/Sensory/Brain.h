@@ -32,6 +32,9 @@ class Brain
             addAllele(new Allele<float>("WastePerception", 0, 100, Generator::instance().getRandomNumber(10.0f, MAX_PERCEPTION_RADIUS)));
             addAllele(new Allele<float>("EntityPerception", 0, 100, Generator::instance().getRandomNumber(10.0f, MAX_PERCEPTION_RADIUS)));
 
+
+            addAllele(new Allele<float>("EntitySpeed", 0.0f, 1.0f, Generator::instance().getRandomNumber(0.0f, 1.0f), 0.1f));
+
         }
 
         Brain(const Brain& other, Entity* entity){
@@ -80,9 +83,11 @@ class Brain
             if(this->gene["WasteDigester"]->getValue() > 0)
                 body->addComponent(new WasteDigester(entity));
 
-            this->entity->getEntitySensor()->radius = gene["EntityPerception"]->getValue();
+            //this->entity->getEntitySensor()->radius = gene["EntityPerception"]->getValue();
             this->entity->getResourceSensor("Food")->radius = gene["FoodPerception"]->getValue();
             this->entity->getResourceSensor("Waste")->radius = gene["WastePerception"]->getValue();
+
+            this->entity->speed = this->gene["EntitySpeed"]->getValue();
 
         }
 

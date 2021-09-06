@@ -19,7 +19,7 @@ class ResourceManager{
             this->type = type;
         }
 
-        void addResource(){
+        void addResource(sf::Vector2f position = Generator::instance().getRandomVector()){
             if(type == nullptr)
                 return;
             if(this->resources->size() >= 2000)
@@ -32,7 +32,7 @@ class ResourceManager{
                 resource = this->pool->top();
                 this->pool->pop();
             }
-            resource->position = Generator::instance().getRandomVector(450, sf::Vector2f(0.0f, 0.0f));
+            resource->position = position;
             resource->activate();
             this->resources->push_back(resource);
 
@@ -49,6 +49,7 @@ class ResourceManager{
                 if(r != nullptr){
                     if(r->isConsumed()){
                         this->resources->erase(this->resources->begin() + i);
+                        i--;
                         this->pool->push(r);
                     }
                     else

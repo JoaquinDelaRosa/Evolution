@@ -117,7 +117,7 @@ void World::formNextGeneration(){
         delete e;
     }
 
-    for(int i = 0; i < (int) tmp.size(); i++){
+    for(int i = 0; i < (int) std::min((int) tmp.size(), GENERATION_SAMPLE_SIZE); i++){
         removed->push(tmp[i]);
     }
 }

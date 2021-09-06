@@ -10,7 +10,6 @@
 
 #include "Clock.h"
 #include "Constants.h"
-
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Evolution");
@@ -25,6 +24,7 @@ int main()
         World::instance().managers["Food"]->addResource();
         World::instance().managers["Waste"]->addResource();
     }
+
 
     std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     window.setFramerateLimit(60);
@@ -46,23 +46,18 @@ int main()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
-            else if(event.type == sf::Event::Resized)
-                continue;
             else if(event.type == sf::Event::KeyPressed){
                 if(event.key.code == sf::Keyboard::Space)
                     World::instance().formNextGeneration();
             }
-            else if(event.type == sf::Event::LostFocus)
-                continue;
         }
+
+        World::instance().update(delta * SPEED);
+        Clock::instance().tick(delta * SPEED);
 
         window.clear();
         window.setView(view);
-
         World::instance().draw(window);
-        World::instance().update(delta * SPEED);
-
-        Clock::instance().tick(delta * SPEED);
         window.display();
 
         // std::cout<<World::instance().getEntities()->size()<<"\n";

@@ -1,17 +1,17 @@
 #ifndef WASTESENSOR_H
 #define WASTESENSOR_H
 
-#include <Sensory/Sensor.h>
+#include <Sensory/ResourceSensor.h>
 #include <Resources/Waste.h>
 
 class Entity;
 class Resource;
 
-class WasteSensor : public Sensor{
+class WasteSensor : public ResourceSensor{
     private:
-        Waste* closest = nullptr;
+
     public:
-        WasteSensor(Entity* entity) : Sensor(entity){
+        WasteSensor(Entity* entity) : ResourceSensor(entity){
             this->owner = entity;
             this->radius = 50.0f;
         };
@@ -19,6 +19,7 @@ class WasteSensor : public Sensor{
         Resource* sense() override{
             Waste* closestWaste = nullptr;
             float distance = 1e6;
+            this->signal = 0;
             sf::Vector2f position = owner->getPosition();
 
             std::vector<Resource*> wastes = *World::instance().managers["Waste"]->getResources();
@@ -32,26 +33,17 @@ class WasteSensor : public Sensor{
                 if(candidateDistance < distance && candidateDistance <= radius){
                     distance = candidateDistance;
                     closestWaste = (Waste*) wastes[i];
+                    this->signal ++;
                 }
             }
-
-            this->signal = distance;
-            if(closestWaste == nullptr){
-                this->signal = MAX_PERCEPTION_RADIUS + 1;
-            }
-            closest = closestWaste;
+            this->closest = closestWaste;
 
             return closestWaste;
         }
 
         float getSignal() override{
-            if(closest == nullptr)
-                return -1;
-
-            return getDistance(closest->position, this->owner->getPosition());
+            return this->signal;
         }
-
-
 };
 
 #endif // WASTESENSOR_H

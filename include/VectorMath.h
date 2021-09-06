@@ -123,7 +123,8 @@ class Generator{
             return (float) UProbability(generator);
         }
 
-        float getNormal(){
+        float getNormal(float stdev = 1.0f){
+            this->NProbability = std::normal_distribution<float>(0.0f, stdev);
             return (float) NProbability(generator);
         }
 

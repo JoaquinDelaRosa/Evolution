@@ -1,17 +1,16 @@
 #ifndef FOODSENSOR_H
 #define FOODSENSOR_H
 
-#include <Sensory/Sensor.h>
+#include <Sensory/ResourceSensor.h>
 
 class Entity;
 
-class FoodSensor : public Sensor
+class FoodSensor : public ResourceSensor
 {
     private:
-        Food* closest = nullptr;
 
     public:
-        FoodSensor(Entity* entity) : Sensor(entity){
+        FoodSensor(Entity* entity) : ResourceSensor(entity){
             this->owner = entity;
             this->radius = 50.0f;
         };
@@ -19,6 +18,8 @@ class FoodSensor : public Sensor
         Resource* sense() override{
             Food* closestFood = nullptr;
             float distance = 1e6;
+            this->signal = 0;
+
             sf::Vector2f position = owner->getPosition();
 
             std::vector<Resource*> foods = *World::instance().managers["Food"]->getResources();
@@ -32,25 +33,16 @@ class FoodSensor : public Sensor
                 if(candidateDistance < distance && candidateDistance <= radius){
                     distance = candidateDistance;
                     closestFood = (Food*) foods[i];
+                    this->signal++;
                 }
             }
-
-            this->signal = distance;
-            if(closestFood == nullptr){
-                this->signal = MAX_PERCEPTION_RADIUS + 1;
-            }
-
-            closest = closestFood;
-            return (Food*) closestFood;
+            this->closest = closestFood;
+            return closestFood;
         }
 
         float getSignal() override{
-            if(closest == nullptr)
-                return -1;
-
-            return getDistance(closest->position, this->owner->getPosition());
+            return this->signal;
         }
-
 };
 
 #endif // FOODSENSOR_H

@@ -14,6 +14,7 @@ class Food : public Resource
         Food(sf::Vector2f position = sf::Vector2f(0.0f, 0.0f)) : Resource::Resource(){
             this->position = position;
             this->id = ResourceTypes::FoodType;
+            this->value = 0.75f;
 
             this->body = new sf::CircleShape(3);
             this->body->setFillColor(sf::Color::Green);
@@ -42,7 +43,8 @@ class Food : public Resource
         }
 
         void draw(sf::RenderWindow& window) override{
-            window.draw(*this->body);
+            if(!this->consumed)
+                window.draw(*this->body);
         }
 };
 

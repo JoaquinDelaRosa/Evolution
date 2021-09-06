@@ -10,6 +10,7 @@ class Resource{
     protected:
         bool consumed = false;
         unsigned int id = ResourceTypes::NoneType;
+        float value = 0.0f;
 
     public:
         sf::Vector2f position = sf::Vector2f(0.0f, 0.0f);
@@ -55,6 +56,10 @@ class Resource{
 
         unsigned int getId(){
             return this->id;
+        }
+
+        float getValue(){
+            return this->value;
         }
 };
 

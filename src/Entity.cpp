@@ -6,7 +6,7 @@
 #include "Sensory/FoodSensor.h"
 #include "Sensory/WasteSensor.h"
 #include "Sensory/EntitySensor.h"
-#include "Sensory/Sensor.h"
+#include "Sensory/ResourceSensor.h"
 #include "BodyComp/Body.h"
 
 #include "Resources/Waste.h"
@@ -22,10 +22,10 @@ Entity::Entity(sf::Vector2f position)
     this->lifespan = 0;
     this->children = 0;
 
-    this->brain = new Brain(this);
-    this->body = new Body(this);
 
     this->initializeSensors();
+    this->body = new Body(this);
+    this->brain = new Brain(this);
 
     this->brain->encode();
 }
@@ -35,11 +35,11 @@ Entity::~Entity(){
 }
 
 void Entity::initializeSensors(){
-    this->sensors = *(new std::map<std::string, Sensor*>());
+    this->sensors = *(new std::map<std::string, ResourceSensor*>());
     this->sensors.emplace("Food", new FoodSensor(this));
     this->sensors.emplace("Waste", new WasteSensor(this));
 
-    this->entitySensor = new EntitySensor(this);
+   // this->entitySensor = new EntitySensor(this);
 
 }
 
@@ -87,8 +87,12 @@ void Entity::update(float time){
         }
     }
 
+    // Search resources
+    this->searchResource("Food");
+    this->searchResource("Waste");
+
     this->body->update(time);
-    this->body->act(target);
+    this->body->act();
 }
 
 void Entity::updateDirection(){
@@ -113,7 +117,7 @@ void Entity::updateDirection(){
 }
 
 float Entity::getFitness(){
-    return log(this->lifespan * (this->children + 1));
+    return log(this->lifespan * (this->children + 1)) + log(this->accumulatedHealth);
 }
 
 float Entity::distanceToTarget(){
@@ -138,14 +142,11 @@ void Entity::clone(){
 
 void Entity::kill(){
     this->isAlive = false;
-    World::instance().managers["Waste"]->addResource();
+    World::instance().managers["Waste"]->addResource(this->position);
 }
 
-void Entity::search(std::string type){
-    if(type == "Entity")
-        this->otherEntity = this->entitySensor->senseEntity();
-    else
-        this->target = this->sensors[type]->sense();
+void Entity::searchResource(std::string type){
+    this->sensors[type]->sense();
 }
 
 void Entity::wander(){

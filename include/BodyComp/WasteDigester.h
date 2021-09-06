@@ -4,6 +4,7 @@
 #include "SFML/Graphics.hpp"
 #include "Resources/Resource.h"
 #include "Resources/ResourceTypes.h"
+#include "Sensory/ResourceSensor.h"
 
 class Entity;
 
@@ -34,17 +35,18 @@ class WasteDigester : public Component{
         }
 
         virtual void action(){
+            Resource* resource = entity->getResourceSensor("Waste")->getClosest();
+            if(resource == nullptr)
+                return;
 
-        }
-
-        virtual void action(Resource* resource){
             if(resource->isConsumed())
-                    return;
+                return;
 
             if(resource->getId() == ResourceTypes::WasteType){;
                 if(getDistance(resource->position, this->position) < 10.0f){
                     resource->consume(this->entity);
-                    entity->health += 1.0f;
+                    entity->health += resource->getValue();
+                    entity->accumulatedHealth += resource->getValue();
                     entity->target = nullptr;
                 }
             }

@@ -11,16 +11,19 @@ class Allele{
         T value;
         T minimum;
         T maximum;
+        float stdev;
+
     public:
-        Allele(std::string name, T minimum, T maximum, T value){
+        Allele(std::string name, T minimum, T maximum, T value, float stdev = 0.2f){
             this->name = name;
             this->value = value;
             this->minimum = minimum;
             this->maximum = maximum;
+            this->stdev = stdev;
         }
 
         void mutate(){
-            this->value += Generator::instance().getNormal();
+            this->value += Generator::instance().getNormal(stdev);
             clamp<T>(this->minimum, this->maximum, &this->value);
         }
 
