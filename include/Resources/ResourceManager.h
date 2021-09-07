@@ -6,6 +6,7 @@
 #include "Resources/Resource.h"
 #include "VectorMath.h"
 
+
 class ResourceManager{
     private:
         std::vector<Resource*> *resources;

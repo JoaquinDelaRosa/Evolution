@@ -128,6 +128,14 @@ class Generator{
             return (float) NProbability(generator);
         }
 
+
+        int getRandomInteger(int minx, int maxx){
+            std::uniform_int_distribution<int> P(minx, maxx);
+            return P(generator);
+        }
+
+
+
 };
 
 

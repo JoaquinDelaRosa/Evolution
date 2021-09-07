@@ -170,4 +170,7 @@ void Entity::getStats(){
     printTableCell(this->brain->getGeneValue("FoodPerception"));
     printTableCell(this->brain->getGeneValue("WastePerception"));
     std::cout<<"\n";
+
+    std::cout<<"Neural Network Genome:\n";
+    this->brain->display();
 }

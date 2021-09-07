@@ -100,6 +100,9 @@ class Brain
             return gene[name]->getValue();
         }
 
+        void display(){
+            this->nn->display();
+        }
 
 
 

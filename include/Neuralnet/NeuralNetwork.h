@@ -4,28 +4,28 @@
 #include "VectorMath.h"
 
 #include "Constants.h"
+#include "Neuralnet/InnovationManager.h"
+#include "Neuralnet/NEATGene.h"
 
 class Entity;
 
-struct Neuron{
-    float value;
-    int index;
-};
-
-float sigmoid(float val){
+inline float sigmoid(float val){
     return 1.0f / (1.0f + exp(-val));
 }
+
+
 
 class NeuralNetwork{
     private:
         Entity* entity;
         int inputNeurons;
         int outputNeurons;
-        const static int hiddenNeurons = 20;
+        int hiddenNeurons;
 
         std::map<std::string, float> inputs;
         std::vector<float> hidden;
         std::map<std::string, float> outputs;
+        std::vector<Gene> genome;
 
         std::vector<std::vector<float>> hiddenWeights;
         std::vector<std::vector<float>> outputWeights;
@@ -33,11 +33,19 @@ class NeuralNetwork{
     public:
         NeuralNetwork(Entity* e){
             this->entity = e;
+            this->hiddenNeurons = 0;
+
+            this->inputs = *(new std::map<std::string, float>());
+            this->outputs = *(new std::map<std::string, float>());
+            this->hidden = *(new std::vector<float>());
+            this->genome = *(new std::vector<Gene>());
+
             initializeInputs();
-            initializeHidden();
             initializeOutputs();
+
             this->inputNeurons = inputs.size();
             this->outputNeurons = outputs.size();
+
             initializeWeights();
         }
 
@@ -45,34 +53,21 @@ class NeuralNetwork{
             if(this != &other){
                 this->inputNeurons = other.inputNeurons;
                 this->outputNeurons = other.outputNeurons;
+                this->hiddenNeurons = other.hiddenNeurons;
+                this->genome = other.genome;
 
-                this->initializeInputs();
-                this->initializeHidden();
-                this->initializeOutputs();
+                this->inputs = other.inputs;
+                this->outputs = other.outputs;
+                this->hidden = other.hidden;
 
-                // Copy weights and mutate
-                for(int i = 0; i < inputNeurons; i++){
-                    std::vector<float> tmp;
-                    for(int j = 0; j < hiddenNeurons; j++){
-                        tmp.push_back(other.hiddenWeights[i][j]);
-                    }
-                    this->hiddenWeights.push_back(tmp);
-                }
-
-
-                for(int i = 0; i < hiddenNeurons; i++){
-                    std::vector<float> tmp;
-                    for(int j = 0; j < outputNeurons; j++){
-                        tmp.push_back(other.outputWeights[i][j]);
-                    }
-                    this->outputWeights.push_back(tmp);
-                }
+                this->hiddenWeights = other.hiddenWeights;
+                this->outputWeights = other.outputWeights;
                 this->entity = entity;
             }
+
         }
 
         void initializeInputs(){
-            this->inputs = *(new std::map<std::string, float>());
 
             this->inputs["AngleOffsetMemory"] = 0;
             this->inputs["TargetDistanceMemory"] = -1;
@@ -94,18 +89,10 @@ class NeuralNetwork{
         }
 
         void initializeOutputs(){
-            this->outputs = *(new std::map<std::string, float>());
             this->outputs["Wander"] = 0;
             this->outputs["TurnLeft"] = 0;
             this->outputs["TurnRight"] = 0;
             this->outputs["SearchEntity"] = 0;
-        }
-
-        void initializeHidden(){
-            this->hidden = *(new std::vector<float>());
-            for(int i = 0; i < this->hiddenNeurons; i++){
-                this->hidden.push_back(0);
-            }
         }
 
         void initializeWeights(){
@@ -132,29 +119,48 @@ class NeuralNetwork{
 
 
         void mutate(){
-            for(int i = 0; i < inputNeurons; i++){
-                for(int j = 0; j < hiddenNeurons; j++){
-                    float p = Generator::instance().getUniform();
-                    // Mutate at a certain probability
-                    if(p >= NEURAL_MUTATION_RATE)
-                        continue;
-                    else{
-                        hiddenWeights[i][j] += Generator::instance().getRandomNumber(-0.1f, 0.1f);
-                    }
-                }
+            // We follow the mutation algorithm in NEAT
+            // We either add a connection, a node or modify existing connections
+            int action = Generator::instance().getRandomInteger(1, 7);
+
+            int i = Generator::instance().getRandomInteger(0, inputNeurons - 1);
+            int o = Generator::instance().getRandomInteger(0, outputNeurons - 1) ;
+            int h = Generator::instance().getRandomInteger(0, hiddenNeurons - 1);
+
+            if(hiddenNeurons <= 0){
+                addHidden();
+                return;
             }
 
-
-            for(int i = 0; i < hiddenNeurons; i++){
-                for(int j = 0; j < outputNeurons; j++){
-                    float p = Generator::instance().getUniform();
-                    // Mutate at a certain probability
-                    if(p >= NEURAL_MUTATION_RATE)
-                        continue;
-                    else{
-                        outputWeights[i][j] += Generator::instance().getRandomNumber(-0.1f, 0.1f);
-                    }
+            switch(action){
+            case 1:
+                addHidden();
+                break;
+            case 2:
+                if(this->hiddenWeights[i][h] == 0){
+                    this->hiddenWeights[i][h] = Generator::instance().getRandomNumber(-1, 1);
+                    this->addGene(0, i, 1, h, this->hiddenWeights[i][h]);
                 }
+                break;
+
+            case 3:
+                if(this->hiddenWeights[h][o] == 0){
+                    this->outputWeights[h][o] = Generator::instance().getRandomNumber(-1, 1);
+                    this->addGene(1, h, 2, o, this->hiddenWeights[h][o]);
+                }
+                break;
+
+            case 4:
+                this->hiddenWeights[i][h] += Generator::instance().getRandomNumber(-1, 1);
+                break;
+
+            case 5:
+                this->outputWeights[h][o] += Generator::instance().getRandomNumber(-1, 1);
+                break;
+
+            case 6:
+                // Remove a node
+                break;
             }
         }
 
@@ -165,32 +171,7 @@ class NeuralNetwork{
             act();
         }
 
-        void getInputs(){
-            if(entity->getBody() == nullptr)
-                return;
-
-            inputs["EntityHealth"] = entity->getHealth();
-            inputs["HasFoodDigester"] = entity->getBody()->hasComponent("FoodDigester");
-            inputs["HasWasteDigester"] = entity->getBody()->hasComponent("WasteDigester");
-            inputs["FoodSignal"] = entity->getResourceSensor("Food")->getSignal();
-            inputs["WasteSignal"] = entity->getResourceSensor("Waste")->getSignal();
-            inputs["NearestFood"] = entity->getResourceSensor("Food")->distance();
-            inputs["NearestWaste"] = entity->getResourceSensor("Waste")->distance();
-            inputs["Speed"] = entity->speed;
-
-
-            inputs["TargetDistanceMemory"] = inputs["TargetDistance"];
-            inputs["TargetDistance"] = entity->distanceToTarget();
-
-            sf::Vector2f t = Generator::instance().getRandomVector();
-            if(entity->target != nullptr)
-                t = entity->target->position - entity->getPosition();
-
-            inputs["AngleOffsetMemory"] = inputs["AngleOffset"];
-            inputs["AngleOffset"] = getAngle(t) - getAngle(entity->getDirection());
-
-
-        }
+        void getInputs();
 
         void calculateHidden(){
             for(int i = 0; i < hiddenNeurons; i++){
@@ -217,23 +198,36 @@ class NeuralNetwork{
             }
         }
 
-        void act(){
-            if(outputs["Wander"] >= 0.5f){
-                entity->wander();
-            }
-            if(outputs["TurnLeft"] >= 0.5f){
-                entity->steerLeft();
-            }
-            if(outputs["TurnRight"] >= 0.5f){
-                entity->steerRight();
+        void act();
+
+        void display(){
+            for(int i = 0; i < (int) this->genome.size(); i++){
+                genome[i].display();
+                std::cout<<"\n";
             }
         }
 
-        void display(){
-            for(auto it = outputs.begin(); it != outputs.end(); it++){
-                std::cout<<it->second<<"\n";
+        void addHidden(){
+            this->hidden.push_back(0);
+
+            for(int i = 0; i < inputNeurons; i++){
+                this->hiddenWeights[i].push_back(0);
             }
-            std::cout<<"----\n";
+
+            std::vector<float> tmp;
+            for(int j = 0; j < outputNeurons; j++){
+                float w = 0;
+                tmp.push_back(w);
+            }
+            this->outputWeights.push_back(tmp);
+
+            this->hiddenNeurons++;
+        }
+
+        void addGene(int flayer, int findex, int slayer, int sindex, float weight){
+            Gene* gene = new Gene(flayer, findex, slayer, sindex, weight);
+            addGeneToManager(gene);
+            this->genome.push_back(*gene);
         }
 };
 

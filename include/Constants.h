@@ -7,7 +7,7 @@
 #define HEIGHT 1000
 #define ENTITY_COUNT 100
 #define FOOD_COUNT 0
-#define SPEED 1
+#define SPEED 0.5
 
 #define EXTINCT_SIZE 6                          // Defines the number of top species to pick (including from previous generations).
 #define GENERATION_SAMPLE_SIZE 3                  // Defines how many form the current ranking will be sampled and allowed to move to the next next ggeneration

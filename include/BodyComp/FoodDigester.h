@@ -5,6 +5,7 @@
 #include "Resources/Resource.h"
 #include "Resources/ResourceTypes.h"
 #include "Resources/Waste.h"
+#include "World.h"
 
 class Entity;
 class ResourceSensor;
