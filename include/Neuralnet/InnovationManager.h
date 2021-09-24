@@ -37,6 +37,7 @@ class InnovationManager{
 
         void add(Gene* gene){
             this->genes.push_back(gene);
+            gene->setInnovation(this->ctr);
             this->ctr++;
         }
 

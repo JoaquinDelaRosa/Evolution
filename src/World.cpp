@@ -57,7 +57,7 @@ void World::update(float time){
     }
 
 
-    if((int) Clock::instance().getTick() % 100 == 0){
+    if((int) Clock::instance().getTick() % TICKS_PER_PRUNE == 0){
         pruneWorst();
     }
 
@@ -72,9 +72,12 @@ void World::update(float time){
 }
 
 void World::pruneWorst(){
-    // Implementation of rNEAT, we evolve the entity with lowest fitness score.
+    // Implementation of rtNEAT, we remove the entity with lowest adjusted fitness score.
     float worst = INT_MAX;
     Entity* worstEntity = nullptr;
+
+    float best = 0;
+    Entity* bestEntity = nullptr;
 
     for(int i = 0; i < (int) this->entities->size(); i++){
         Entity* entity = (*this->entities)[i];
@@ -83,15 +86,25 @@ void World::pruneWorst(){
             continue;
         }
 
-        int f = entity->getFitness();
+        int n = SpeciesManager::instance().getMembersOfSpecies(entity->getSpecies());
+        if(n == 0)
+            n = 1;
+
+        int f = entity->getFitness() / n;               // adjusted fitness
         if(f < worst){
             worst = f;
             worstEntity = entity;
         }
+
+        if(f >= best){
+            best = f;
+            bestEntity = entity;
+        }
     }
 
-    if(worstEntity != nullptr){
-        worstEntity->mutateBrain();
+    if(worstEntity != nullptr && worstEntity != bestEntity){
+        worstEntity->kill();
+        bestEntity->reproduce();
     }
 }
 

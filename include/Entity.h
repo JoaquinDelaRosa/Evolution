@@ -27,6 +27,7 @@ class Entity
 
         float lifespan = 0;
         int children = 0;
+        int speciesMask = -1;
 
         Body* body;
         Brain* brain;
@@ -88,6 +89,8 @@ class Entity
 
         void mutateBrain();
         bool compatibleWith(Entity* other);
+
+        int getSpecies() {return this->speciesMask;}
 };
 
 #endif // ENTITY_H

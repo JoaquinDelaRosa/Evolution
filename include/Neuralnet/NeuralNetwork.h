@@ -121,7 +121,7 @@ class NeuralNetwork{
         void mutate(){
             // We follow the mutation algorithm in NEAT
             // We either add a connection, a node or modify existing connections
-            int action = Generator::instance().getRandomInteger(1, 7);
+            int action = Generator::instance().getRandomInteger(1, 4);
 
             int i = Generator::instance().getRandomInteger(0, inputNeurons - 1);
             int o = Generator::instance().getRandomInteger(0, outputNeurons - 1) ;
@@ -141,25 +141,24 @@ class NeuralNetwork{
                     this->hiddenWeights[i][h] = Generator::instance().getRandomNumber(-1, 1);
                     this->addGene(0, i, 1, h, this->hiddenWeights[i][h]);
                 }
-                break;
+                else{
+                    this->hiddenWeights[i][h] += Generator::instance().getRandomNumber(-1, 1);
+                }
+
+                if(this->outputWeights[h][o] == 0){
+                    this->outputWeights[h][o] = Generator::instance().getRandomNumber(-1, 1);
+                    this->addGene(1, h, 2, o, this->outputWeights[h][o]);
+                }
+                else{
+                    this->outputWeights[h][o] += Generator::instance().getRandomNumber(-1, 1);
+                }
 
             case 3:
-                if(this->hiddenWeights[h][o] == 0){
-                    this->outputWeights[h][o] = Generator::instance().getRandomNumber(-1, 1);
-                    this->addGene(1, h, 2, o, this->hiddenWeights[h][o]);
-                }
-                break;
-
-            case 4:
                 this->hiddenWeights[i][h] += Generator::instance().getRandomNumber(-1, 1);
                 break;
 
-            case 5:
+            case 4:
                 this->outputWeights[h][o] += Generator::instance().getRandomNumber(-1, 1);
-                break;
-
-            case 6:
-                // Remove a node
                 break;
             }
         }
@@ -180,6 +179,7 @@ class NeuralNetwork{
                 for(auto j = inputs.begin(); j != inputs.end(); j++){
                     float input = j->second;
                     hidden[i] += input * hiddenWeights[ctr][i];
+                    ctr++;
                 }
                 hidden[i] = sigmoid(hidden[i]);
             }

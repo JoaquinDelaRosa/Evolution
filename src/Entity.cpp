@@ -10,6 +10,7 @@
 #include "BodyComp/Body.h"
 
 #include "Resources/Waste.h"
+#include "Neuralnet/SpeciesManager.h"
 
 Entity::Entity(sf::Vector2f position)
 {
@@ -131,6 +132,7 @@ float Entity::distanceToTarget(){
 void Entity::reproduce(){
     Entity* e = new Entity(this->position);
     e->brain = new Brain(*this->brain, e);
+    e->speciesMask = SpeciesManager::instance().getSpecies(e);
     World::instance().addEntity(e);
 }
 
@@ -138,6 +140,7 @@ void Entity::clone(){
     Entity* e = new Entity(this->position);
     e->brain = this->brain->clone(e);
     e->brain->encode();
+    e->speciesMask = SpeciesManager::instance().getSpecies(e);
     World::instance().addEntity(e);
 }
 

@@ -36,6 +36,10 @@ class SpeciesManager{
         void repopulate();
         void displaySpeciesInfo();
 
+        int getSpecies(Entity* e);
+
+        int getMembersOfSpecies(int id);
+
 };
 
 #endif // SPECIESMANAGER_H_INCLUDED

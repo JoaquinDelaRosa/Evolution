@@ -71,6 +71,7 @@ class Brain
             for(auto it = this->gene.begin(); it != this->gene.end(); it++){
                 it->second->mutate();
             }
+
             this->nn->mutate();
         }
 

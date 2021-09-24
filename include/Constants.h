@@ -5,7 +5,7 @@
 
 #define WIDTH 1000
 #define HEIGHT 1000
-#define ENTITY_COUNT 100
+#define ENTITY_COUNT 200
 #define FOOD_COUNT 0
 #define SPEED 1
 
@@ -22,5 +22,6 @@
 #define C1                      1.0f
 #define C2                      1.0f
 
+#define TICKS_PER_PRUNE         300
 #define DEBUG 0
 #endif // CONSTANTS_H_INCLUDED
