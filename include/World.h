@@ -18,7 +18,6 @@ class World
     private:
         std::vector<Entity*> *entities;
         std::vector<Entity*> *buffer;
-        std::priority_queue<Entity, std::vector<Entity*> , Entity::Compare> *removed;
 
         int width = 1000;
         int height = 1000;
@@ -52,13 +51,13 @@ class World
 
         // Update and Draw
         void update(float time);
+        void pruneWorst();
         void repopulate();
         void formNextGeneration();
         void draw(sf::RenderWindow& window);
 
         bool outOfBounds(float x, float y);
 
-        void displayGenerationInfo();
 };
 
 #endif // WORLD_

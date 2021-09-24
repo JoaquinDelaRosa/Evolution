@@ -229,6 +229,39 @@ class NeuralNetwork{
             addGeneToManager(gene);
             this->genome.push_back(*gene);
         }
+
+        float distance(NeuralNetwork* other){
+            int excess = 0;
+            int difference = 0 ;
+
+            for(int i = 0; i < (int) this->genome.size(); i++){
+                bool found = false;
+                for(int o = 0; o < (int) other->genome.size(); o++){
+                    if(this->genome[i].innovation == other->genome[o].innovation){
+                        found = true;
+                        break;
+                    }
+                }
+
+                if(!found)
+                    excess++;
+            }
+
+            for(int o = 0; o < (int) other->genome.size(); o++){
+                bool found = false;
+                for(int i = 0; i <  (int) this->genome.size(); i++){
+                    if(this->genome[i].innovation == other->genome[o].innovation){
+                        found = true;
+                        break;
+                    }
+                }
+
+                if(!found)
+                    difference++;
+            }
+
+            return excess + difference;
+        }
 };
 
 #endif // NEURALNETWORK_H

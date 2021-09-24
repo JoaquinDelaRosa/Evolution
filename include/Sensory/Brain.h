@@ -8,6 +8,8 @@
 #include<Allele.h>
 #include "Neuralnet/NeuralNetwork.h"
 
+#include "Constants.h"
+
 class Entity;
 
 class Brain
@@ -104,8 +106,35 @@ class Brain
             this->nn->display();
         }
 
+        void mutateNN(){
+            this->nn->mutate();
+        }
 
+        bool getCompatibility(Brain* other){
+            if(other == nullptr)
+                return false;
 
+            float q = C1 * this->distance(other) + C2 * this->nn->distance(other->nn);
+
+            if(q <= THRESHOLD)
+                return true;
+            return false;
+        }
+
+        float distance(Brain* other){
+            float tot = 0;
+            auto it = this->gene.begin();
+            auto ot = other->gene.begin();
+
+            while(it != this->gene.end() && ot != this->gene.end()){
+                float dx = it->second->getWeight() - ot->second->getWeight();
+                tot += dx * dx;
+                it++;
+                ot++;
+            }
+
+            return sqrt(tot);
+        }
 };
 
 #endif // BRAIN_H

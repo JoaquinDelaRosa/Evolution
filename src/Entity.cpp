@@ -117,7 +117,8 @@ void Entity::updateDirection(){
 }
 
 float Entity::getFitness(){
-    return log(this->lifespan * (this->children + 1)) + log(this->accumulatedHealth);
+    float q = log(this->lifespan * (this->children + 1)) + log(this->accumulatedHealth);
+    return std::max(0.0f, q);
 }
 
 float Entity::distanceToTarget(){
@@ -173,4 +174,16 @@ void Entity::getStats(){
 
     std::cout<<"Neural Network Genome:\n";
     this->brain->display();
+}
+
+Body* Entity::getBody() { return body;}
+Brain* Entity::getBrain() { return brain;}
+
+void Entity::mutateBrain(){
+    this->brain->mutateNN();
+}
+
+bool Entity::compatibleWith(Entity* other){
+    return this->brain->getCompatibility(other->getBrain());
+
 }

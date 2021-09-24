@@ -70,8 +70,8 @@ class Entity
         float getHealth() {return health;}
         sf::Vector2f getPosition(){ return this->position; }
         sf::Vector2f getDirection(){ return this->direction; }
-        Body* getBody() { return body;}
-        Brain* getBrain() { return brain;}
+        Body* getBody();
+        Brain* getBrain();
 
         ResourceSensor* getResourceSensor(std::string key) { return this->sensors[key];}
 
@@ -85,6 +85,9 @@ class Entity
         };
 
         void getStats();
+
+        void mutateBrain();
+        bool compatibleWith(Entity* other);
 };
 
 #endif // ENTITY_H

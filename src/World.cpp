@@ -7,6 +7,7 @@
 
 #include<VectorMath.h>
 #include<Resources/ResourceManager.h>
+#include<Neuralnet/SpeciesManager.h>
 #include "Constants.h"
 #include "Printer.h"
 
@@ -17,7 +18,6 @@ World::World()
 
     this->entities = new std::vector<Entity*>();
     this->buffer = new std::vector<Entity*>();
-    this->removed = new std::priority_queue<Entity, std::vector<Entity*> , Entity::Compare>();
 }
 
 void World::addEntity(Entity* entity){
@@ -46,16 +46,19 @@ void World::update(float time){
         }
 
         if(!entity->alive()){
-            // If this is the last entity alive, we simply repopulate the simulation with clones of this entity.
-            // Since it is the last one alive, it is also, most likely, the best
             this->entities->erase(this->entities->begin() + i);
             i--;
-            this->removed->push(entity);
+            SpeciesManager::instance().addEntity(entity);
             continue;
         }
 
         if(entity != nullptr)
             entity->update(time);
+    }
+
+
+    if((int) Clock::instance().getTick() % 100 == 0){
+        pruneWorst();
     }
 
     World::instance().managers["Food"]->update(time);
@@ -66,6 +69,30 @@ void World::update(float time){
     }
     repopulate();
 
+}
+
+void World::pruneWorst(){
+    // Implementation of rNEAT, we evolve the entity with lowest fitness score.
+    float worst = INT_MAX;
+    Entity* worstEntity = nullptr;
+
+    for(int i = 0; i < (int) this->entities->size(); i++){
+        Entity* entity = (*this->entities)[i];
+        if(entity==nullptr){
+            i--;
+            continue;
+        }
+
+        int f = entity->getFitness();
+        if(f < worst){
+            worst = f;
+            worstEntity = entity;
+        }
+    }
+
+    if(worstEntity != nullptr){
+        worstEntity->mutateBrain();
+    }
 }
 
 void World::draw(sf::RenderWindow& window){
@@ -91,35 +118,15 @@ void World::repopulate(){
 
 void World::formNextGeneration(){
     for(int i = 0; i < (int) this->entities->size(); i++){
-        this->removed->push((*this->entities)[i]);
+        SpeciesManager::instance().addEntity((*this->entities)[i]);
     }
 
     this->entities->clear();
     generation++;
-    displayGenerationInfo();
+    std::cout<<"Generation "<<generation<<"\n";
 
-    std::vector<Entity*> tmp;
-
-    for(int i = 0; i < EXTINCT_SIZE && !this->removed->empty(); i++){
-        Entity* entity = this->removed->top();
-
-        this->removed->pop();
-        for(int j = 0; j < START_POP / (EXTINCT_SIZE - i + 1); j++){
-            entity->reproduce();
-        }
-        entity->clone();
-        tmp.push_back(entity);
-    }
-
-    while(!this->removed->empty()){
-        Entity* e = this->removed->top();
-        this->removed->pop();
-        delete e;
-    }
-
-    for(int i = 0; i < (int) std::min((int) tmp.size(), GENERATION_SAMPLE_SIZE); i++){
-        removed->push(tmp[i]);
-    }
+    SpeciesManager::instance().repopulate();
+    SpeciesManager::instance().displaySpeciesInfo();
 }
 
 bool World::outOfBounds(float x , float y){
@@ -128,34 +135,4 @@ bool World::outOfBounds(float x , float y){
     int up = this->height / 2;
     int down = -this->height / 2;
     return ! (left <= x && x <= right && down  <= y && y <= up);
-}
-
-void World::displayGenerationInfo(){
-    int width = 70;
-    std::cout<<"Generation "<<generation<<"\n";
-    printTableCell("ID");
-    printTableCell("Fitness");
-    printTableCell("Lifetime");
-    printTableCell("Children");
-    printTableCell("Food Radius");
-    printTableCell("Waste Radius");
-
-    std::cout<<"\n";
-    printHorizontal(width);
-
-    std::vector<Entity*> tmp;
-
-    for(int i = 0; i < EXTINCT_SIZE && !this->removed->empty(); i++){
-        Entity* entity = this->removed->top();
-        entity->getStats();
-
-        this->removed->pop();
-        tmp.push_back(entity);
-    }
-
-    for(int i = 0; i < (int) tmp.size(); i++){
-        removed->push(tmp[i]);
-    }
-
-    printHorizontal(width);
 }

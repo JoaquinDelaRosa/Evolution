@@ -43,6 +43,10 @@ class Allele{
             return this->maximum;
         }
 
+        T getWeight(){
+            return (value - minimum) / (maximum - minimum);
+        }
+
 };
 
 #endif // ALLELE_H
