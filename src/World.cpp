@@ -57,7 +57,7 @@ void World::update(float time){
     }
 
 
-    if((int) Clock::instance().getTick() % TICKS_PER_PRUNE == 0){
+    if((int) Clock::instance().getTick() % TICKS_PER_PRUNE == 0 && (int) this->entities->size() >= MINIMUM_ENTITY_PRUNING_THRESHOLD){
         pruneWorst();
     }
 

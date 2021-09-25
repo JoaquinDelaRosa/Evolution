@@ -155,10 +155,12 @@ class NeuralNetwork{
 
             case 3:
                 this->hiddenWeights[i][h] += Generator::instance().getRandomNumber(-1, 1);
+                this->addGene(0, i, 1, h, this->hiddenWeights[i][h]);
                 break;
 
             case 4:
                 this->outputWeights[h][o] += Generator::instance().getRandomNumber(-1, 1);
+                this->addGene(1, h, 2, o, this->outputWeights[h][o]);
                 break;
             }
         }
@@ -225,6 +227,14 @@ class NeuralNetwork{
         }
 
         void addGene(int flayer, int findex, int slayer, int sindex, float weight){
+            for(int i= 0; i < (int) this->genome.size(); i++){
+                Gene* gene = &this->genome[i];
+                if(gene->flayer == flayer && gene->findex == findex && gene->slayer == slayer && gene->sindex == sindex){
+                    gene->weight = weight;
+                    return;
+                }
+            }
+
             Gene* gene = new Gene(flayer, findex, slayer, sindex, weight);
             addGeneToManager(gene);
             this->genome.push_back(*gene);
