@@ -88,7 +88,7 @@ class Entity
         void getStats();
 
         void mutateBrain();
-        bool compatibleWith(Entity* other);
+        bool compatibleWith(Entity* other, float threshold);
 
         int getSpecies() {return this->speciesMask;}
 };

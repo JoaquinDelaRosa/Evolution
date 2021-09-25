@@ -111,13 +111,13 @@ class Brain
             this->nn->mutate();
         }
 
-        bool getCompatibility(Brain* other){
+        bool getCompatibility(Brain* other, float threshold){
             if(other == nullptr)
                 return false;
 
             float q = C1 * this->distance(other) + C2 * this->nn->distance(other->nn);
 
-            if(q <= THRESHOLD)
+            if(q <= threshold)
                 return true;
             return false;
         }

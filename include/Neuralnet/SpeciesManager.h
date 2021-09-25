@@ -10,10 +10,12 @@ class SpeciesManager{
     private:
         std::vector<Species*> *species;
         int id = 0;
+        float similarityThreshold = 5.0f;
 
         SpeciesManager(){
             this->species = new std::vector<Species*>();
             this->id = 0;
+            this->similarityThreshold = 5.0f;
         }
 
     public:
@@ -39,6 +41,12 @@ class SpeciesManager{
         int getSpecies(Entity* e);
 
         int getMembersOfSpecies(int id);
+
+        void update();
+
+        float getSimilarityThreshold(){
+            return this->similarityThreshold;
+        }
 
 };
 

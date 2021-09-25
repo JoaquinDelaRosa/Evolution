@@ -14,7 +14,7 @@ class Food : public Resource
         Food(sf::Vector2f position = sf::Vector2f(0.0f, 0.0f)) : Resource::Resource(){
             this->position = position;
             this->id = ResourceTypes::FoodType;
-            this->value = 0.75f;
+            this->value = 1.5f;
 
             this->body = new sf::CircleShape(3);
             this->body->setFillColor(sf::Color::Green);

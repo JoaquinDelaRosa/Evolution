@@ -140,6 +140,7 @@ void World::formNextGeneration(){
 
     SpeciesManager::instance().repopulate();
     SpeciesManager::instance().displaySpeciesInfo();
+    SpeciesManager::instance().update();
 }
 
 bool World::outOfBounds(float x , float y){

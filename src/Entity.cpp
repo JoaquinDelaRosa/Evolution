@@ -186,7 +186,7 @@ void Entity::mutateBrain(){
     this->brain->mutateNN();
 }
 
-bool Entity::compatibleWith(Entity* other){
-    return this->brain->getCompatibility(other->getBrain());
+bool Entity::compatibleWith(Entity* other, float threshold){
+    return this->brain->getCompatibility(other->getBrain(), threshold);
 
 }

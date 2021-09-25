@@ -49,6 +49,26 @@ class Species
         int getSize(){
             return this->N;
         }
+
+        std::vector<Entity*> getTop(int t){
+            std::vector<Entity*> result;
+            for(int i = 0; i < t; i++){
+                if (this->entities->empty())
+                    break;
+                result.push_back(this->top());
+                this->entities->pop();
+            }
+
+            for(int i = 0; i < (int) result.size(); i++){
+                this->entities->push(result[i]);
+            }
+
+            return result;
+        }
+
+        bool isEmpty(){
+            return this->N == 0;
+        }
 };
 
 #endif // SPECIES_H
